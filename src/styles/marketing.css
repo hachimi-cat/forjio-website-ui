@@ -9,5 +9,13 @@
  * voice" from "the app voice."
  */
 .marketing-site :is(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--font-display), Gellix, var(--font-sans), sans-serif;
+  /*
+   * `var(--font-sans, sans-serif)` provides an inline fallback so the
+   * whole declaration stays valid when a host app names its Inter
+   * variable something other than `--font-sans` (e.g. plugipay uses
+   * `--font-inter`). Without the fallback, the missing var made the
+   * entire `font-family` value invalid → headings inherited Inter
+   * from body and Gellix never rendered.
+   */
+  font-family: var(--font-display), Gellix, var(--font-sans, sans-serif);
 }
