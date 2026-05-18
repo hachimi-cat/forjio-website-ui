@@ -1,6 +1,6 @@
 {
   "name": "@forjio/website-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared marketing-site chrome (navbar, footer, docs scaffold, hero badge, fonts) for the Forjio family of SaaS products. Linksnap is the anchor.",
   "license": "UNLICENSED",
   "private": false,

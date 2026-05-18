@@ -49,7 +49,7 @@ const DEFAULT_COMPANY: NonNullable<MarketingFooterProps['company']> = {
 };
 
 export function MarketingFooter({
-  brandIcon: BrandIcon,
+  brandIcon,
   brandName,
   brandTagline,
   columns = DEFAULT_COLUMNS,
@@ -62,7 +62,7 @@ export function MarketingFooter({
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <BrandIcon className="h-5 w-5 text-primary" />
+              {brandIcon}
               <span className="font-bold tracking-tight">{brandName}</span>
             </Link>
             {brandTagline && (

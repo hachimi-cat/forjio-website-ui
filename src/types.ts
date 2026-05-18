@@ -18,8 +18,16 @@ export interface FooterColumn {
 }
 
 export interface MarketingNavProps {
-  /** lucide-react icon component (e.g. `Link2`) used as the brandmark. */
-  brandIcon: BrandIcon;
+  /**
+   * Rendered brand icon element (e.g. `<Link2 className="h-6 w-6 text-primary" />`).
+   * Pre-rendered as ReactNode because MarketingNav is a Client Component
+   * and Next App Router forbids passing function components across the
+   * Server → Client boundary. The consumer (which is a Server Component
+   * layout) renders the icon itself with the canonical classes.
+   *
+   * Canonical classes: `h-6 w-6 text-primary` for the navbar.
+   */
+  brandIcon: ReactNode;
   /** Product wordmark (e.g. "LinkSnap"). */
   brandName: string;
   /** Override the default `/features /pricing /docs` set. */
@@ -40,7 +48,12 @@ export interface MarketingNavProps {
 }
 
 export interface MarketingFooterProps {
-  brandIcon: BrandIcon;
+  /**
+   * Rendered brand icon element. Canonical classes for the footer:
+   * `h-5 w-5 text-primary`. See MarketingNavProps.brandIcon for the
+   * server/client boundary rationale.
+   */
+  brandIcon: ReactNode;
   brandName: string;
   /** One-line tagline shown under the brand block. */
   brandTagline?: string;
