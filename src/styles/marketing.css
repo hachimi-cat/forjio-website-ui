@@ -1,0 +1,13 @@
+/*
+ * Marketing-site heading font opt-in. Pair with `MarketingShell` (which
+ * applies the `.marketing-site` class on the column wrapper) and the
+ * `gellix` helper from `@forjio/website-ui/fonts` (which sets the
+ * `--font-display` CSS var).
+ *
+ * Portal pages omit `MarketingShell`, so their headings stay on the
+ * body font (Inter) — that intentional asymmetry separates "the brand
+ * voice" from "the app voice."
+ */
+.marketing-site :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-display), Gellix, var(--font-sans), sans-serif;
+}
