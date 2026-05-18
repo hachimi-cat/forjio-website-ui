@@ -88,10 +88,13 @@ import { MarketingShell, MarketingNav, MarketingFooter } from '@forjio/website-u
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <MarketingShell>
-      <MarketingNav brandIcon={Link2} brandName="LinkSnap" />
+      <MarketingNav
+        brandIcon={<Link2 className="h-6 w-6 text-primary" />}
+        brandName="LinkSnap"
+      />
       <main className="flex-1">{children}</main>
       <MarketingFooter
-        brandIcon={Link2}
+        brandIcon={<Link2 className="h-5 w-5 text-primary" />}
         brandName="LinkSnap"
         brandTagline="URL shortener and branded QR codes — part of the Forjio family."
       />
@@ -106,7 +109,11 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 import { Link2 } from 'lucide-react';
 import { HeroBadge, SectionEyebrow } from '@forjio/website-ui';
 
-<HeroBadge brandIcon={Link2} primary="Short links" secondary="Forjio family, branded QR included" />
+<HeroBadge
+  brandIcon={<Link2 className="size-3 text-primary" strokeWidth={1.5} />}
+  primary="Short links"
+  secondary="Forjio family, branded QR included"
+/>
 
 <SectionEyebrow>Features</SectionEyebrow>
 ```
@@ -162,14 +169,16 @@ For each of the 7 remaining products (storlaunch, fulkruma, ripllo, plugipay, pa
    - Add `${gellix.variable}` to `<body className>`.
 4. Delete `public/fonts/Gellix-*.woff2` (4 files).
 5. In `app/globals.css`: delete the `.marketing-site :is(h1...h6) { font-family: ... }` rule. The package CSS provides it now.
-6. Replace `src/components/layout/navbar.tsx` usage in `(marketing)/layout.tsx` with `<MarketingNav brandIcon={...} brandName="..." />` from the package, then delete `navbar.tsx`.
-7. Same for `footer.tsx` → `<MarketingFooter brandIcon={...} brandName="..." brandTagline="..." />`.
+6. Replace `src/components/layout/navbar.tsx` usage in `(marketing)/layout.tsx` with `<MarketingNav brandIcon={<MyIcon className="h-6 w-6 text-primary" />} brandName="..." />` from the package, then delete `navbar.tsx`. Note `brandIcon` takes a pre-rendered ReactNode, not a component reference.
+7. Same for `footer.tsx` → `<MarketingFooter brandIcon={<MyIcon className="h-5 w-5 text-primary" />} brandName="..." brandTagline="..." />`.
 8. Replace the `(marketing)/layout.tsx` `<div className="marketing-site flex min-h-screen flex-col">` wrapper with `<MarketingShell>`.
-9. In every `(marketing)/page.tsx`-style file:
-   - Replace hand-rolled hero badge divs with `<HeroBadge brandIcon={...} primary="..." secondary="..." />`.
-   - Replace `<p className="text-xs font-mono uppercase tracking-wider text-primary mb-3">X</p>` with `<SectionEyebrow>X</SectionEyebrow>`.
-10. If the product ships docs: replace `src/components/docs/{toc,sidebar,mobile-sidebar,search,cross-product-nav}.tsx` imports with the package equivalents, then delete those files. Keep your local `lib/markdown.tsx` (it's product-specific content) but re-export its `TocEntry` / `SearchEntry` shapes from `@forjio/website-ui` if you want to drop the local copy.
-11. `npm run build && npm run typecheck` — fix import errors, deploy, screenshot-compare against the pre-migration baseline.
+9. Also migrate `(auth)/layout.tsx` if it shares the same chrome (most products do — see linksnap as the reference). It does NOT use `MarketingShell` (no Gellix headings on login/signup pages by convention).
+10. In every `(marketing)/page.tsx`-style file:
+    - Replace hand-rolled hero badge divs with `<HeroBadge brandIcon={<MyIcon className="size-3 text-primary" strokeWidth={1.5} />} primary="..." secondary="..." />`.
+    - Replace `<p className="text-xs font-mono uppercase tracking-wider text-primary mb-3">X</p>` with `<SectionEyebrow>X</SectionEyebrow>`.
+11. If the product ships docs: replace `src/components/docs/{toc,sidebar,mobile-sidebar,search,cross-product-nav}.tsx` imports with the package equivalents, then delete those files. Keep your local `lib/markdown.tsx` (it's product-specific content) but re-export its `TocEntry` / `SearchEntry` shapes from `@forjio/website-ui` if you want to drop the local copy. `CrossProductNav` now takes a `products={...}` array and `current="..."` prop — the consumer owns the family list.
+12. Delete any pre-existing `navbar.test.tsx` / `footer.test.tsx` under `__tests__/`. They were asserting against the OLD per-product copy and are dead weight now that the chrome lives in the shared package (the package will get its own tests in Session 3).
+13. `npm run build && npm run typecheck` — fix import errors, deploy, screenshot-compare against the pre-migration baseline.
 
 Per-product axes (the only things that should differ between consumers):
 - `brandIcon` (lucide icon)
@@ -183,12 +192,12 @@ Everything else — link sets, layout, address block, copyright — uses the loc
 
 ## API decisions worth knowing
 
-- **Defaults vs required.** `brandIcon` + `brandName` are required on both `MarketingNav` and `MarketingFooter`. Everything else is defaulted. `navLinks`, `columns`, `company`, `copyrightSuffix` only need passing if you genuinely deviate from the linksnap canon.
+- **Defaults vs required.** `brandIcon` + `brandName` are required on `MarketingNav`, `MarketingFooter`, and `HeroBadge`. Everything else is defaulted. `navLinks`, `columns`, `company`, `copyrightSuffix` only need passing if you genuinely deviate from the linksnap canon.
+- **`brandIcon` is `ReactNode`, not a component.** You pass `<Link2 className="..." />` — already rendered — not `Link2`. This is forced by Next App Router: function references can't cross the Server -> Client boundary, and `MarketingNav` is a Client Component (uses `useState` for the mobile drawer). The same constraint applies to `MarketingFooter` and `HeroBadge` for API symmetry. Canonical classes per slot: nav = `h-6 w-6 text-primary`, footer = `h-5 w-5 text-primary`, hero badge = `size-3 text-primary` with `strokeWidth={1.5}`.
 - **`rightSlot` on `MarketingNav`.** Some products (huudis admin portal) want a single "Open dashboard" button instead of the login + CTA pair — pass your own ReactNode through `rightSlot` to replace the whole right cluster.
 - **`loginHref: null` hides the log-in link.** Useful when the only entry is the CTA.
 - **No theming prop.** Color comes from CSS vars only. Forking `MarketingNav` to recolor it is a smell — set `--primary` in your `globals.css` instead.
 - **`CrossProductNav` is data-only.** We don't bake the product list into the package — each consumer passes its own `products` array. This lets a product's docs link to the *staging* docs of a sibling during a coordinated rollout without forking the package.
-- **No bundled icon.** The `BrandIcon` prop takes a lucide-react component verbatim. We don't pre-resolve it because the family of brand icons isn't fixed (catentio uses `Cat`, plugipay uses `CreditCard`, etc.).
 - **`storageKey` on `DocsSidebar`.** Defaults to a single shared key (`docs-sidebar-open-groups`) so a reader's preferences carry across products. Pass a product-scoped key only if you intentionally want isolation.
 
 ## Versioning
