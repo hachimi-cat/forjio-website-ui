@@ -200,6 +200,15 @@ Everything else — link sets, layout, address block, copyright — uses the loc
 - **`CrossProductNav` is data-only.** We don't bake the product list into the package — each consumer passes its own `products` array. This lets a product's docs link to the *staging* docs of a sibling during a coordinated rollout without forking the package.
 - **`storageKey` on `DocsSidebar`.** Defaults to a single shared key (`docs-sidebar-open-groups`) so a reader's preferences carry across products. Pass a product-scoped key only if you intentionally want isolation.
 
+## Known interop gotchas
+
+- **Vitest fails to import the package**: jsdom's strict ESM resolver rejects the package's extension-less `next/link` import in some configurations. Workarounds:
+  1. Mock the package per test: `vi.mock('@forjio/website-ui', () => ({ MarketingNav: () => null, /* etc */ }))`, OR
+  2. Inline the package in `vitest.config.ts`: `test: { server: { deps: { inline: ['@forjio/website-ui'] } } }`.
+  Session 2 of the website-ui rollout includes a proper vitest setup helper in this README.
+
+- **Old `navbar.test.tsx` / `footer.test.tsx`** in your repo will fail to import once you delete the local components. Delete those tests — they were asserting product-specific shape that now belongs to the package and will get covered in Session 3's package-level test suite.
+
 ## Versioning
 
 This package is **0.1.0** — pre-1.0 because the API will iterate as we migrate the remaining 7 products in Session 2. Pin to an exact version (`"@forjio/website-ui": "0.1.0"`) until 1.0 ships.
