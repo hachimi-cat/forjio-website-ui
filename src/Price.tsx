@@ -20,17 +20,35 @@ export interface PriceProps {
   className?: string;
 }
 
-const idrFormatter = new Intl.NumberFormat('id-ID', {
-  style: 'currency',
-  currency: 'IDR',
-  maximumFractionDigits: 0,
-});
+function fmt(locale: string, currency: string, digits: number) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
 
-const usdFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  maximumFractionDigits: 0,
-});
+// Auto-pick precision based on amount magnitude. Tiny per-unit rates
+// (Rp 4.10/GB·hour, $0.000256/GB·hour) get enough digits to stay
+// meaningful instead of collapsing to "Rp 4" or "$0".
+function formatIdr(idr: number): string {
+  if (idr === 0) return fmt('id-ID', 'IDR', 0).format(0);
+  // Fractional rupiah on rate cards — show 2 decimals.
+  if (Math.abs(idr) < 100 && idr % 1 !== 0) return fmt('id-ID', 'IDR', 2).format(idr);
+  return fmt('id-ID', 'IDR', 0).format(idr);
+}
+
+function formatUsd(cents: number): string {
+  const dollars = cents / 100;
+  if (dollars === 0) return fmt('en-US', 'USD', 0).format(0);
+  // Micro-amounts (< 1¢) like storage per-GB-hour need 4 decimals.
+  if (Math.abs(dollars) < 0.01) return fmt('en-US', 'USD', 4).format(dollars);
+  // Sub-dollar or fractional-dollar amounts: 2 decimals.
+  if (Math.abs(dollars) < 1 || cents % 100 !== 0) return fmt('en-US', 'USD', 2).format(dollars);
+  // Whole-dollar amounts: clean integer.
+  return fmt('en-US', 'USD', 0).format(dollars);
+}
 
 /**
  * Locale-aware price display.
@@ -58,9 +76,7 @@ export function Price({
 }: PriceProps): ReactElement {
   const { currency } = useLocale();
   const active = forceCurrency ?? currency;
-  const text = active === 'USD'
-    ? usdFormatter.format(usdCents / 100)
-    : idrFormatter.format(idr).replace(/\s/g, ' ');
+  const text = active === 'USD' ? formatUsd(usdCents) : formatIdr(idr);
   return (
     <span className={className}>
       {text}
