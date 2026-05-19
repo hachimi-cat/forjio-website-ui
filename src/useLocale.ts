@@ -36,37 +36,34 @@ function deriveLang(country: string | null): 'en' | 'id' {
   return country === 'ID' ? 'id' : 'en';
 }
 
-let inFlight: Promise<string> | null = null;
-
-async function resolveCountry(): Promise<string> {
-  // sessionStorage cache so repeat navigations within the same tab
-  // skip the network round-trip.
-  try {
-    const cached = sessionStorage.getItem(SESSION_KEY);
-    if (cached) return cached;
-  } catch {
-    // sessionStorage can throw in incognito-like modes; fall through.
+/**
+ * Resolve a country code from the browser without a network round-trip.
+ *
+ * Signal: `navigator.language` (and its `languages[]` fallback) returns
+ * a BCP-47 tag like `id-ID`, `en-US`, `id`, `en`. We extract the region
+ * subtag where present.
+ *
+ * Why not `/cdn-cgi/trace`: that was the original signal — Cloudflare's
+ * edge-injected country. Two problems killed it: (1) on non-Cloudflare
+ * staging environments the fetch 404s but adds a pending request that
+ * blocks Playwright's `waitUntil: 'networkidle'` for 45s; (2) Apple's
+ * Lockdown Mode + some adblockers block Cloudflare endpoints. Browser
+ * locale is universally available, free, synchronous, and tracks user
+ * preference (which is what we actually want for pricing display
+ * anyway — an expat in Jakarta with en-US locale probably wants USD).
+ */
+function resolveCountryFromBrowser(): string {
+  if (typeof navigator === 'undefined') return 'XX';
+  const tags: string[] = [];
+  if (navigator.language) tags.push(navigator.language);
+  if (Array.isArray(navigator.languages)) tags.push(...navigator.languages);
+  for (const tag of tags) {
+    const region = tag.split('-')[1];
+    if (region && /^[A-Z]{2}$/.test(region)) return region.toUpperCase();
   }
-
-  // Coalesce parallel callers into a single fetch.
-  if (!inFlight) {
-    inFlight = (async () => {
-      try {
-        const res = await fetch('/cdn-cgi/trace', { cache: 'no-store' });
-        if (!res.ok) return 'XX';
-        const text = await res.text();
-        const match = text.match(/^loc=([A-Z]{2})/m);
-        return match?.[1] ?? 'XX';
-      } catch {
-        return 'XX';
-      }
-    })().then((c) => {
-      try { sessionStorage.setItem(SESSION_KEY, c); } catch { /* ignore */ }
-      inFlight = null;
-      return c;
-    });
-  }
-  return inFlight;
+  // Fallback: bare `id` / `en` with no region. Treat `id` as Indonesia.
+  if (tags.some((t) => t.toLowerCase().startsWith('id'))) return 'ID';
+  return 'XX';
 }
 
 /**
@@ -79,14 +76,21 @@ async function resolveCountry(): Promise<string> {
  * (no flicker for Indonesian visitors, brief swap-in for international).
  */
 export function useLocale(): Locale {
+  // null = pre-hydration (SSR + first client render). Falls back to the
+  // Indonesian-first defaults so SSR HTML matches first paint for
+  // Indonesian visitors (zero flicker). useEffect resolves it on the
+  // client immediately after hydration.
   const [country, setCountry] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    resolveCountry().then((c) => {
-      if (!cancelled) setCountry(c);
-    });
-    return () => { cancelled = true; };
+    // sessionStorage override wins (used by setLocaleCountry below).
+    try {
+      const cached = sessionStorage.getItem(SESSION_KEY);
+      if (cached) { setCountry(cached); return; }
+    } catch {
+      // sessionStorage can throw in incognito-like modes; fall through.
+    }
+    setCountry(resolveCountryFromBrowser());
   }, []);
 
   if (country === null) {
