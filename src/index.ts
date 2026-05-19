@@ -7,6 +7,10 @@ export { MarketingFooter } from './MarketingFooter';
 export { HeroBadge } from './HeroBadge';
 export { SectionEyebrow } from './SectionEyebrow';
 
+// Locale-aware primitives (IDR/USD today, multi-language tomorrow)
+export { Price, type PriceProps } from './Price';
+export { useLocale, setLocaleCountry, type Locale } from './useLocale';
+
 // Docs scaffolding (the right rail, sidebar, cross-product strip, search)
 export { DocsToc } from './docs/DocsToc';
 export { DocsSidebar } from './docs/DocsSidebar';
