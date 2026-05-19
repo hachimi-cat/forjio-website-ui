@@ -39,20 +39,41 @@ function deriveLang(country: string | null): 'en' | 'id' {
 /**
  * Resolve a country code from the browser without a network round-trip.
  *
- * Signal: `navigator.language` (and its `languages[]` fallback) returns
- * a BCP-47 tag like `id-ID`, `en-US`, `id`, `en`. We extract the region
- * subtag where present.
+ * Primary signal: **timezone** (`Intl.DateTimeFormat().resolvedOptions().timeZone`).
+ * Indonesian devices are set to `Asia/Jakarta` / `Asia/Pontianak` /
+ * `Asia/Makassar` / `Asia/Jayapura` (one per WIB/WITA/WIT zone) regardless
+ * of UI language — and VPN doesn't change the timezone. This handles the
+ * common case where an Indonesian user has en-US locale but is physically
+ * in Indonesia (which broke the language-only detection).
  *
- * Why not `/cdn-cgi/trace`: that was the original signal — Cloudflare's
- * edge-injected country. Two problems killed it: (1) on non-Cloudflare
- * staging environments the fetch 404s but adds a pending request that
- * blocks Playwright's `waitUntil: 'networkidle'` for 45s; (2) Apple's
- * Lockdown Mode + some adblockers block Cloudflare endpoints. Browser
- * locale is universally available, free, synchronous, and tracks user
- * preference (which is what we actually want for pricing display
- * anyway — an expat in Jakarta with en-US locale probably wants USD).
+ * Fallback: `navigator.language` region subtag (`id-ID` → ID, `en-US`
+ * → US). Used when timezone is missing or unusual (some embedded
+ * webviews don't expose Intl).
+ *
+ * Why not `/cdn-cgi/trace` (the original signal): non-Cloudflare staging
+ * environments 404 on it but the pending request blocks Playwright's
+ * `waitUntil: 'networkidle'` for 45s. Locale + timezone are synchronous
+ * and Cloudflare-independent.
  */
+const INDONESIAN_TIMEZONES = new Set([
+  'Asia/Jakarta',     // WIB — Sumatra, Java, West/Central Kalimantan
+  'Asia/Pontianak',   // WIB — West Kalimantan
+  'Asia/Makassar',    // WITA — Sulawesi, Bali, Nusa Tenggara, East/South Kalimantan
+  'Asia/Jayapura',    // WIT — Maluku, Papua
+]);
+
 function resolveCountryFromBrowser(): string {
+  // Primary: timezone — survives VPN, ignores UI language preference.
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz && INDONESIAN_TIMEZONES.has(tz)) return 'ID';
+    // For non-ID timezones, we don't try to map every tz → country code
+    // (there are 400+). We just know "not Indonesian" → fall through to
+    // language for the precise region.
+  } catch {
+    // Some embedded webviews don't expose Intl — fall through.
+  }
+
   if (typeof navigator === 'undefined') return 'XX';
   const tags: string[] = [];
   if (navigator.language) tags.push(navigator.language);
@@ -61,7 +82,6 @@ function resolveCountryFromBrowser(): string {
     const region = tag.split('-')[1];
     if (region && /^[A-Z]{2}$/.test(region)) return region.toUpperCase();
   }
-  // Fallback: bare `id` / `en` with no region. Treat `id` as Indonesia.
   if (tags.some((t) => t.toLowerCase().startsWith('id'))) return 'ID';
   return 'XX';
 }
