@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import type { MarketingNavProps, NavLink } from './types';
 import { cx } from './utils';
+import { Button } from './components/ui/button';
 
 const DEFAULT_NAV_LINKS: NavLink[] = [
   { href: '/features', label: 'Features' },
@@ -70,12 +71,9 @@ export function MarketingNav({
                   Log in
                 </Link>
               )}
-              <Link
-                href={ctaHref}
-                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                {ctaLabel}
-              </Link>
+              <Button asChild className="shadow-none">
+                <Link href={ctaHref}>{ctaLabel}</Link>
+              </Button>
             </>
           )}
         </div>
@@ -119,13 +117,11 @@ export function MarketingNav({
                       Log in
                     </Link>
                   )}
-                  <Link
-                    href={ctaHref}
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                  >
-                    {ctaLabel}
-                  </Link>
+                  <Button asChild className="w-full shadow-none">
+                    <Link href={ctaHref} onClick={() => setMobileOpen(false)}>
+                      {ctaLabel}
+                    </Link>
+                  </Button>
                 </>
               )}
             </div>
