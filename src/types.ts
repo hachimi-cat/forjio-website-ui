@@ -41,6 +41,21 @@ export interface MarketingNavProps {
   /** CTA label; defaults to "Get Started". */
   ctaLabel?: string;
   /**
+   * Label on the login link; defaults to "Log in".
+   *
+   * Exists so a product with a translated marketing site can render the
+   * whole navbar in one language. Without it the only escape was
+   * `rightSlot`, which means rebuilding the login + CTA pair by hand and
+   * losing the family chrome this component exists to guarantee.
+   */
+  loginLabel?: string;
+  /**
+   * Accessible name for the mobile menu toggle; defaults to
+   * "Toggle navigation menu". A screen-reader user on an Indonesian page
+   * should not be read an English control name.
+   */
+  menuLabel?: string;
+  /**
    * Replace the right-hand login + CTA pair entirely. Useful for the
    * portal-style "Open dashboard" single button some products use.
    */

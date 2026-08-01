@@ -29,6 +29,8 @@ export function MarketingNav({
   loginHref = '/login',
   ctaHref = '/signup',
   ctaLabel = 'Get Started',
+  loginLabel = 'Log in',
+  menuLabel = 'Toggle navigation menu',
   rightSlot,
 }: MarketingNavProps) {
   const pathname = usePathname();
@@ -68,7 +70,7 @@ export function MarketingNav({
                   href={loginHref}
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Log in
+                  {loginLabel}
                 </Link>
               )}
               <Button asChild className="shadow-none">
@@ -81,7 +83,7 @@ export function MarketingNav({
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden"
-          aria-label="Toggle navigation menu"
+          aria-label={menuLabel}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -114,7 +116,7 @@ export function MarketingNav({
                       onClick={() => setMobileOpen(false)}
                       className="text-sm text-muted-foreground hover:text-foreground"
                     >
-                      Log in
+                      {loginLabel}
                     </Link>
                   )}
                   <Button asChild className="w-full shadow-none">
