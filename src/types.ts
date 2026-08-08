@@ -56,6 +56,21 @@ export interface MarketingNavProps {
    */
   menuLabel?: string;
   /**
+   * Small controls rendered immediately BEFORE the login link — the
+   * currency picker, and a language one where a product has it.
+   *
+   * Separate from `rightSlot` because the two answer different questions.
+   * `rightSlot` replaces the login + CTA pair, so using it to hang a
+   * currency toggle off the navbar means every product re-implements the
+   * chrome this component exists to keep identical — and then drifts.
+   * This one is additive: the defaults stay exactly where they are.
+   *
+   * Rendered in the mobile menu too. A visitor on a phone gets the same
+   * choice as one on a laptop, which is the whole point of moving it out
+   * of a settings page.
+   */
+  localeSlot?: ReactNode;
+  /**
    * Replace the right-hand login + CTA pair entirely. Useful for the
    * portal-style "Open dashboard" single button some products use.
    */

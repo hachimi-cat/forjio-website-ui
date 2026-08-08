@@ -31,6 +31,7 @@ export function MarketingNav({
   ctaLabel = 'Get Started',
   loginLabel = 'Log in',
   menuLabel = 'Toggle navigation menu',
+  localeSlot,
   rightSlot,
 }: MarketingNavProps) {
   const pathname = usePathname();
@@ -63,6 +64,7 @@ export function MarketingNav({
         </div>
 
         <div className="hidden items-center gap-4 md:flex">
+          {localeSlot}
           {rightSlot ?? (
             <>
               {loginHref && (
@@ -108,6 +110,7 @@ export function MarketingNav({
               </Link>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-border/50 pt-4">
+              {localeSlot && <div className="pb-1">{localeSlot}</div>}
               {rightSlot ?? (
                 <>
                   {loginHref && (
