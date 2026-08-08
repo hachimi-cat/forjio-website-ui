@@ -32,6 +32,7 @@ export function MarketingNav({
   loginLabel = 'Log in',
   menuLabel = 'Toggle navigation menu',
   localeSlot,
+  localeBar,
   rightSlot,
 }: MarketingNavProps) {
   const pathname = usePathname();
@@ -44,11 +45,16 @@ export function MarketingNav({
           behind a tap is as buried as one behind Settings) and squeezing
           the controls in beside the hamburger. Desktop keeps them in the
           nav cluster, so each is hidden where the other applies and the
-          duplicate never both render. */}
-      {localeSlot && (
+          duplicate never both render.
+
+          The typography is the footer row's, not the navbar's: 12px muted
+          with room for an uppercase label, so the two preference rows on a
+          page look like the same control in two places. `localeBar` carries
+          the label; `localeSlot` is the pre-0.8.0 fallback. */}
+      {(localeBar ?? localeSlot) && (
         <div className="border-b border-border/50 bg-background/80 md:hidden">
-          <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2">
-            {localeSlot}
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 text-xs text-muted-foreground">
+            {localeBar ?? localeSlot}
           </div>
         </div>
       )}

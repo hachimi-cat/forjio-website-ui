@@ -74,6 +74,23 @@ export interface MarketingNavProps {
    */
   localeSlot?: ReactNode;
   /**
+   * What the phone bar shows instead of `localeSlot`.
+   *
+   * The bar was rendering the navbar's compact control cluster, which reads
+   * as two unexplained widgets floating above the header. bang asked for it
+   * to be the footer's preferences row instead — an uppercase label, the
+   * same 12px muted type, the currency pushed to the far edge.
+   *
+   * Pass the row's CHILDREN, not a wrapper: the bar is the flex container
+   * and supplies the typography, so `ms-auto` on the last child reaches the
+   * real right edge. A wrapper div would collapse to its content width and
+   * strand it mid-row.
+   *
+   * Falls back to `localeSlot`, so a product that has not opted in keeps
+   * exactly the 0.7.0 behaviour.
+   */
+  localeBar?: ReactNode;
+  /**
    * Replace the right-hand login + CTA pair entirely. Useful for the
    * portal-style "Open dashboard" single button some products use.
    */
