@@ -65,9 +65,10 @@ export interface MarketingNavProps {
    * chrome this component exists to keep identical — and then drifts.
    * This one is additive: the defaults stay exactly where they are.
    *
-   * Rendered in the mobile menu too. A visitor on a phone gets the same
-   * choice as one on a laptop, which is the whole point of moving it out
-   * of a settings page.
+   * On a phone it renders BESIDE the hamburger rather than inside the menu
+   * panel: a currency or language choice is what a reader reaches for
+   * while looking at prices, and one tap behind a menu is the same
+   * mistake as one page behind Settings.
    */
   localeSlot?: ReactNode;
   /**

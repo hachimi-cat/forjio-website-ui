@@ -82,13 +82,20 @@ export function MarketingNav({
           )}
         </div>
 
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden"
-          aria-label={menuLabel}
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        {/* Phone: the locale controls sit BESIDE the hamburger, not inside
+            the panel behind it. A currency or language choice is what a
+            reader reaches for while looking at prices, and burying it
+            behind a menu tap is the same mistake as burying it in
+            Settings. */}
+        <div className="flex items-center gap-2 md:hidden">
+          {localeSlot}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={menuLabel}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {mobileOpen && (
@@ -110,7 +117,6 @@ export function MarketingNav({
               </Link>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-border/50 pt-4">
-              {localeSlot && <div className="pb-1">{localeSlot}</div>}
               {rightSlot ?? (
                 <>
                   {loginHref && (
