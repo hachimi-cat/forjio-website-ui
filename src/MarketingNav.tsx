@@ -38,107 +38,115 @@ export function MarketingNav({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
-        <div className="flex items-center gap-8">
-          <Link href={homeHref} className="flex items-center gap-2">
-            {brandIcon}
-            <span className="text-lg font-bold tracking-tight">{brandName}</span>
-          </Link>
-          <div className="hidden items-center gap-6 md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cx(
-                  'text-sm transition-colors',
-                  pathname === link.href
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+    <>
+      {/* Phone: a thin bar ABOVE the header, mirroring the footer's
+          preferences row — bang's call over both the menu panel (a choice
+          behind a tap is as buried as one behind Settings) and squeezing
+          the controls in beside the hamburger. Desktop keeps them in the
+          nav cluster, so each is hidden where the other applies and the
+          duplicate never both render. */}
+      {localeSlot && (
+        <div className="border-b border-border/50 bg-background/80 md:hidden">
+          <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2">
+            {localeSlot}
           </div>
         </div>
-
-        <div className="hidden items-center gap-4 md:flex">
-          {localeSlot}
-          {rightSlot ?? (
-            <>
-              {loginHref && (
+      )}
+      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
+          <div className="flex items-center gap-8">
+            <Link href={homeHref} className="flex items-center gap-2">
+              {brandIcon}
+              <span className="text-lg font-bold tracking-tight">{brandName}</span>
+            </Link>
+            <div className="hidden items-center gap-6 md:flex">
+              {navLinks.map((link) => (
                 <Link
-                  href={loginHref}
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  key={link.href}
+                  href={link.href}
+                  className={cx(
+                    'text-sm transition-colors',
+                    pathname === link.href
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
                 >
-                  {loginLabel}
+                  {link.label}
                 </Link>
-              )}
-              <Button asChild className="shadow-none">
-                <Link href={ctaHref}>{ctaLabel}</Link>
-              </Button>
-            </>
-          )}
-        </div>
+              ))}
+            </div>
+          </div>
 
-        {/* Phone: the locale controls sit BESIDE the hamburger, not inside
-            the panel behind it. A currency or language choice is what a
-            reader reaches for while looking at prices, and burying it
-            behind a menu tap is the same mistake as burying it in
-            Settings. */}
-        <div className="flex items-center gap-2 md:hidden">
-          {localeSlot}
+          <div className="hidden items-center gap-4 md:flex">
+            {localeSlot}
+            {rightSlot ?? (
+              <>
+                {loginHref && (
+                  <Link
+                    href={loginHref}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    {loginLabel}
+                  </Link>
+                )}
+                <Button asChild className="shadow-none">
+                  <Link href={ctaHref}>{ctaLabel}</Link>
+                </Button>
+              </>
+            )}
+          </div>
+
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden"
             aria-label={menuLabel}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-      </div>
 
-      {mobileOpen && (
-        <div className="border-t border-border/50 px-6 py-4 md:hidden">
-          <div className="flex flex-col gap-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={cx(
-                  'text-sm transition-colors',
-                  pathname === link.href
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="mt-2 flex flex-col gap-2 border-t border-border/50 pt-4">
-              {rightSlot ?? (
-                <>
-                  {loginHref && (
-                    <Link
-                      href={loginHref}
-                      onClick={() => setMobileOpen(false)}
-                      className="text-sm text-muted-foreground hover:text-foreground"
-                    >
-                      {loginLabel}
-                    </Link>
+        {mobileOpen && (
+          <div className="border-t border-border/50 px-6 py-4 md:hidden">
+            <div className="flex flex-col gap-3">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cx(
+                    'text-sm transition-colors',
+                    pathname === link.href
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
-                  <Button asChild className="w-full shadow-none">
-                    <Link href={ctaHref} onClick={() => setMobileOpen(false)}>
-                      {ctaLabel}
-                    </Link>
-                  </Button>
-                </>
-              )}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="mt-2 flex flex-col gap-2 border-t border-border/50 pt-4">
+                {rightSlot ?? (
+                  <>
+                    {loginHref && (
+                      <Link
+                        href={loginHref}
+                        onClick={() => setMobileOpen(false)}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        {loginLabel}
+                      </Link>
+                    )}
+                    <Button asChild className="w-full shadow-none">
+                      <Link href={ctaHref} onClick={() => setMobileOpen(false)}>
+                        {ctaLabel}
+                      </Link>
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </nav>
+        )}
+      </nav>
+    </>
   );
 }

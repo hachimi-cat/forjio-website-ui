@@ -65,10 +65,12 @@ export interface MarketingNavProps {
    * chrome this component exists to keep identical — and then drifts.
    * This one is additive: the defaults stay exactly where they are.
    *
-   * On a phone it renders BESIDE the hamburger rather than inside the menu
-   * panel: a currency or language choice is what a reader reaches for
-   * while looking at prices, and one tap behind a menu is the same
-   * mistake as one page behind Settings.
+   * On a phone it renders in a thin bar ABOVE the header, mirroring the
+   * footer's preferences row — not inside the menu panel, because a choice
+   * behind a tap is as buried as one behind a Settings page, and not beside
+   * the hamburger, which crowded the header. Desktop keeps it in the nav
+   * cluster; each placement is hidden where the other applies, so the slot
+   * is never visible twice.
    */
   localeSlot?: ReactNode;
   /**
